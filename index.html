@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Chấm Công & Ca Trực - Bệnh Viện Đa Khoa Khu Vực Cai Lậy</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="loginScreen" class="login-screen">
+    <div class="login-box">
+        <div class="login-logo">
+            <i class="fa-solid fa-hospital"></i>
+        </div>
+
+        <h2>ĐĂNG NHẬP HỆ THỐNG</h2>
+        <p>Bệnh viện Đa khoa Khu vực Cai Lậy</p>
+
+        <div class="login-form">
+            <label for="loginEmail">Email</label>
+            <input
+                type="email"
+                id="loginEmail"
+                placeholder="Nhập email"
+                autocomplete="username"
+            >
+
+            <label for="loginPassword">Mật khẩu</label>
+            <input
+                type="password"
+                id="loginPassword"
+                placeholder="Nhập mật khẩu"
+                autocomplete="current-password"
+            >
+
+            <button id="btnLogin" type="button">
+                <i class="fa-solid fa-right-to-bracket"></i>
+                ĐĂNG NHẬP
+            </button>
+
+            <div id="loginMessage"></div>
+        </div>
+    </div>
+</div>
+    <!-- Top Navigation Header -->
+    <header class="app-header">
+        <div class="header-container">
+            <div class="brand">
+                <div class="brand-logo">
+                    <i class="fa-solid fa-hospital-user"></i>
+                </div>
+                <div class="brand-text">
+                    <h1>BỆNH VIỆN ĐA KHOA KHU VỰC CAI LẬY</h1>
+                    <span>HỆ THỐNG QUẢN LÝ CHẤM CÔNG & CA TRỰC NHÂN VIÊN Y TẾ</span>
+                </div>
+            </div>
+
+            <div class="live-clock-card">
+                <div class="clock-icon"><i class="fa-regular fa-clock"></i></div>
+                <div class="clock-info">
+                    <div id="liveClock" class="clock-time">00:00:00</div>
+                    <div id="liveDate" class="clock-date">Thứ Hai, 01/01/2026</div>
+                </div>
+                 <div class="user-account-card">
+
+    <div class="user-account-info">
+
+        <i class="fa-solid fa-circle-user"></i>
+
+        <div>
+            <strong id="currentUserEmail">
+                Người dùng
+            </strong>
+
+            <span id="currentUserRole">
+                Quản trị viên
+            </span>
+        </div>
+
+    </div>
+
+    <button
+        type="button"
+        id="btnLogout"
+        class="btn-logout"
+    >
+        <i class="fa-solid fa-right-from-bracket"></i>
+        Đăng xuất
+    </button>
+
+</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-wrapper">
+        <!-- Overview Stats Row -->
+        <section class="stats-grid">
+            <div class="stat-card total-staff">
+                <div class="stat-icon"><i class="fa-solid fa-user-doctor"></i></div>
+                <div class="stat-data">
+                    <span class="stat-label">Tổng nhân sự bệnh viện</span>
+                    <h3 id="statTotalStaff">0</h3>
+                </div>
+            </div>
+
+            <div class="stat-card on-duty">
+                <div class="stat-icon"><i class="fa-solid fa-user-check"></i></div>
+                <div class="stat-data">
+                    <span class="stat-label">Đang trong ca trực</span>
+                    <h3 id="statOnDuty">0</h3>
+                </div>
+            </div>
+
+            <div class="stat-card late">
+                <div class="stat-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                <div class="stat-data">
+                    <span class="stat-label">Vào trễ / Đi muộn hôm nay</span>
+                    <h3 id="statLate">0</h3>
+                </div>
+            </div>
+
+            <div class="stat-card checkouts">
+                <div class="stat-icon"><i class="fa-solid fa-door-open"></i></div>
+                <div class="stat-data">
+                    <span class="stat-label">Đã kết thúc ca hôm nay</span>
+                    <h3 id="statCheckedOut">0</h3>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Workspace: Split into Punch Clock (Left) and Records List (Right) -->
+        <div class="content-layout">
+            <!-- Left Panel: Punching / Check-in Terminal -->
+            <section class="card punch-terminal-card">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-fingerprint"></i> Cổng Điểm Danh Trực Tiếp</h2>
+                    <span class="badge badge-pulse">Sẵn sàng nhận dữ liệu</span>
+                </div>
+
+                <div class="card-body">
+                    <!-- Quick Search / Scan Input -->
+                    <div class="form-group">
+                        <label for="empSearchInput">Mã nhân viên hoặc Quét mã thẻ</label>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-barcode"></i>
+                            <input type="text" id="empSearchInput" placeholder="Ví dụ: BV001, BV002... (Bấm Enter để tìm)" autofocus autocomplete="off">
+                            <button class="btn-clear" id="btnClearSearch" title="Xóa"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Staff Selection Dropdown (Alternative) -->
+                    <div class="form-group">
+                        <label for="staffSelect">Hoặc chọn nhanh Cán bộ y tế</label>
+                        <select id="staffSelect">
+                            <option value="">-- Chọn nhân viên từ danh sách --</option>
+                        </select>
+                    </div>
+
+                    <!-- Shift selection -->
+                    <div class="form-group">
+                        <label for="shiftSelect">Ca làm việc / Ca trực</label>
+                        <select id="shiftSelect">
+                            <option value="SHIFT_1">Ca Sáng (07:00 - 11:30)</option>
+                            <option value="SHIFT_2">Ca Chiều (13:00 - 16:30)</option>
+                            <option value="SHIFT_3">Ca Đêm (18:00 - 07:00 hôm sau)</option>
+                            <option value="SHIFT_24H">Trực Cấp cứu 24/24 (07:00 - 07:00)</option>
+                            <option value="SHIFT_OUT">Khám ngoài giờ T7 & CN (Sáng + Chiều)</option>
+                        </select>
+                    </div>
+
+                    <!-- Selected Staff Preview Profile Card -->
+                    <div class="staff-preview-box" id="staffPreviewBox">
+                        <div class="preview-avatar">
+                            <i class="fa-solid fa-user-nurse"></i>
+                        </div>
+                        <div class="preview-info">
+                            <h4 id="previewName">Chưa chọn nhân viên</h4>
+                            <p id="previewRole">Khoa / Phòng ban: ---</p>
+                            <div class="preview-badge-status" id="previewStatusBadge">Trạng thái: Sẵn sàng</div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="punch-actions">
+                        <button id="btnCheckIn" class="btn btn-primary btn-checkin" disabled>
+                            <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                            VÀO CA (CHECK-IN)
+                        </button>
+                        <button id="btnCheckOut" class="btn btn-secondary btn-checkout" disabled>
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                            HẾT CA (CHECK-OUT)
+                        </button>
+                    </div>
+
+                    <!-- Location / Gate note -->
+                    <div class="terminal-footer">
+                        <small><i class="fa-solid fa-location-dot"></i> Điểm chấm công: Cổng kiểm soát số 01 - BVĐK KV Cai Lậy</small>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Panel: Attendance Logs & Management -->
+            <section class="card log-table-card">
+                <div class="card-header logs-header">
+                    <div class="header-title-group">
+                        <h2><i class="fa-solid fa-clipboard-user"></i> Nhật Ký Chấm Công - BVĐK KV Cai Lậy</h2>
+                        <span class="sub-counter" id="logCounter">0 bản ghi hôm nay</span>
+                    </div>
+
+                    <div class="header-action-group">
+                        <button class="btn btn-outline" id="btnOpenStaffModal">
+                            <i class="fa-solid fa-users-gear"></i> Quản lý nhân viên
+                        </button>
+                        <button class="btn btn-outline" id="btnexportToCSV">
+                            <i class="fa-solid fa-file-excel"></i> Xuất Excel
+                        </button>
+                        <button class="btn btn-outline" id="btnPrintReport">
+                            <i class="fa-solid fa-print"></i> In Bảng Công
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filters Toolbar -->
+                <div class="filter-toolbar">
+                    <div class="filter-item">
+                        <label for="filterDate"><i class="fa-regular fa-calendar"></i> Xem ngày:</label>
+                        <input type="date" id="filterDate">
+                    </div>
+
+                    <div class="filter-item">
+                        <label for="filterDept"><i class="fa-solid fa-hospital"></i> Khoa phòng:</label>
+                        <select id="filterDept">
+                            <option value="ALL">Tất cả khoa phòng</option>
+                            <option value="Cấp cứu">Khoa Cấp Cứu</option>
+                            <option value="Hồi sức tích cực">Khoa Hồi Sức Tích Cực (ICU)</option>
+                            <option value="Nội tổng hợp">Khoa Nội Tổng Hợp</option>
+                            <option value="Ngoại chấn thương">Khoa Ngoại Chấn Thương</option>
+                            <option value="Sản - Phụ khoa">Khoa Sản - Phụ Khoa</option>
+                            <option value="Nhi khoa">Khoa Nhi</option>
+                            <option value="Dược">Khoa Dược</option>
+                            <option value="Xét nghiệm">Khoa Xét Nghiệm</option>
+                            <option value="Hành chính">Phòng Hành Chính - Nhân Sự</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-item">
+                        <label for="filterStatus"><i class="fa-solid fa-filter"></i> Trạng thái:</label>
+                        <select id="filterStatus">
+                            <option value="ALL">Tất cả trạng thái</option>
+                            <option value="ON_TIME">Đúng giờ</option>
+                            <option value="LATE">Đi muộn</option>
+                            <option value="ON_DUTY">Đang trực</option>
+                            <option value="COMPLETED">Đã hoàn thành ca</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-item filter-search">
+                        <label for="tableSearchInput"><i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm:</label>
+                        <input type="text" id="tableSearchInput" placeholder="Tên cán bộ, mã NV...">
+                    </div>
+                </div>
+
+                <!-- Attendance Table -->
+                <div class="table-container">
+                    <table class="data-table" id="attendanceTable">
+                        <thead>
+                            <tr>
+                                <th>Mã NV</th>
+                                <th>Họ Và Tên</th>
+                                <th>Khoa / Phòng Ban</th>
+                                <th>Ca Trực</th>
+                                <th>Giờ Vào</th>
+                                <th>Giờ Ra</th>
+                                <th>Tổng Giờ</th>
+                                <th>Tình Trạng</th>
+                                <th class="text-center">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendanceTableBody">
+                            <!-- Injected dynamically via JavaScript -->
+                        </tbody>
+                    </table>
+
+                    <!-- Empty state -->
+                    <div class="empty-state" id="emptyState" style="display: none;">
+                        <i class="fa-solid fa-folder-open"></i>
+                        <p>Không có dữ liệu chấm công nào khớp với điều kiện lọc.</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+    <!-- ================= THỐNG KÊ THEO KHOA / PHÒNG ================= -->
+
+    <section class="card department-stats-card">
+
+        <div class="card-header">
+
+            <h2>
+                <i class="fa-solid fa-chart-column"></i>
+                Thống kê nhân sự theo Khoa / Phòng
+            </h2>
+
+            <span class="badge">
+                Hôm nay
+            </span>
+
+        </div>
+
+
+        <div class="card-body">
+
+            <div class="table-container">
+
+                <table class="data-table"
+                       id="departmentStatsTable">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>STT</th>
+
+                            <th>Khoa / Phòng</th>
+
+                            <th>Tổng nhân sự</th>
+
+                            <th>Đã chấm công</th>
+
+                            <th>Đang trực</th>
+
+                            <th>Đi muộn</th>
+
+                            <th>Đã kết thúc ca</th>
+
+                            <th>Tổng giờ làm</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="departmentStatsBody">
+
+                        <tr>
+
+                            <td colspan="8"
+                                style="text-align:center;">
+
+                                Chưa có dữ liệu
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </section>
+    <!-- ================= BIỂU ĐỒ THỐNG KÊ ================= -->
+
+<section class="charts-grid">
+
+    <div class="card chart-card">
+
+        <div class="card-header">
+            <h2>
+                <i class="fa-solid fa-chart-column"></i>
+                Nhân sự theo Khoa / Phòng
+            </h2>
+        </div>
+
+        <div class="card-body">
+            <div
+                id="departmentChart"
+                class="department-chart"
+            ></div>
+        </div>
+
+    </div>
+
+
+    <div class="card chart-card">
+
+        <div class="card-header">
+            <h2>
+                <i class="fa-solid fa-chart-pie"></i>
+                Tình trạng chấm công hôm nay
+            </h2>
+        </div>
+
+        <div class="card-body">
+
+            <div
+                id="attendanceSummaryChart"
+                class="attendance-summary-chart"
+            ></div>
+
+        </div>
+
+    </div>
+
+</section>
+<!-- ================= BÁO CÁO THỐNG KÊ ================= -->
+
+<section class="card report-card">
+
+    <div class="card-header">
+
+        <h2>
+            <i class="fa-solid fa-file-chart-column"></i>
+            Báo cáo thống kê chấm công
+        </h2>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="report-filter">
+
+            <div class="form-group">
+
+                <label for="reportFromDate">
+                    Từ ngày
+                </label>
+
+                <input
+                    type="date"
+                    id="reportFromDate"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="reportToDate">
+                    Đến ngày
+                </label>
+
+                <input
+                    type="date"
+                    id="reportToDate"
+                >
+
+            </div>
+
+
+            <div class="report-actions">
+
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    id="btnGenerateReport"
+                >
+                    <i class="fa-solid fa-chart-simple"></i>
+                    Xem báo cáo
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-success"
+                    id="btnExportExcel"
+                >
+                    <i class="fa-solid fa-file-excel"></i>
+                    Xuất Excel
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    id="btnClearReport"
+                >
+                    <i class="fa-solid fa-rotate-left"></i>
+                    Xóa
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="reportSummary"
+            class="report-summary"
+        >
+
+            <div class="report-box">
+
+                <span class="report-box-label">
+                    Tổng lượt chấm công
+                </span>
+
+                <strong id="reportTotalLogs">
+                    0
+                </strong>
+
+            </div>
+
+
+            <div class="report-box">
+
+                <span class="report-box-label">
+                    Đúng giờ
+                </span>
+
+                <strong id="reportOnTime">
+                    0
+                </strong>
+
+            </div>
+
+
+            <div class="report-box">
+
+                <span class="report-box-label">
+                    Đi muộn
+                </span>
+
+                <strong id="reportLate">
+                    0
+                </strong>
+
+            </div>
+
+
+            <div class="report-box">
+
+                <span class="report-box-label">
+                    Đã kết thúc ca
+                </span>
+
+                <strong id="reportCompleted">
+                    0
+                </strong>
+
+            </div>
+
+
+            <div class="report-box">
+
+                <span class="report-box-label">
+                    Tổng giờ làm
+                </span>
+
+                <strong id="reportTotalHours">
+                    0.00
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="table-container">
+
+            <table class="data-table">
+
+                <thead>
+
+                    <tr>
+                        <th>STT</th>
+                        <th>Ngày</th>
+                        <th>Mã NV</th>
+                        <th>Họ tên</th>
+                        <th>Khoa / Phòng</th>
+                        <th>Ca trực</th>
+                        <th>Giờ vào</th>
+                        <th>Giờ ra</th>
+                        <th>Trạng thái</th>
+                        <th>Số giờ</th>
+                    </tr>
+
+                </thead>
+
+                <tbody id="reportTableBody">
+
+                    <tr>
+                        <td
+                            colspan="10"
+                            style="text-align:center;"
+                        >
+                            Chọn khoảng thời gian và nhấn
+                            "Xem báo cáo"
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</section>
+    <!-- Modal: Quản Lý Nhân Viên (Thêm / Xóa / Xem danh sách) -->
+    <div class="modal-overlay" id="staffModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-user-doctor"></i> Danh Mục Cán Bộ & Nhân Viên Y Tế</h3>
+                <button class="modal-close" id="btnCloseStaffModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Add new staff form -->
+                <form id="addStaffForm" class="add-staff-form">
+                    <h4>Thêm mới cán bộ / nhân viên</h4>
+                    <div class="form-row">
+                        <div class="form-group flex-1">
+                            <label for="newStaffId">Mã nhân viên *</label>
+                            <input type="text" id="newStaffId" placeholder="VD: BV105" required>
+                        </div>
+                        <div class="form-group flex-2">
+                            <label for="newStaffName">Họ và tên *</label>
+                            <input type="text" id="newStaffName" placeholder="VD: BS. Nguyễn Văn A" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group flex-1">
+                            <label for="newStaffDept">Khoa / Phòng ban *</label>
+                            <select id="newStaffDept" required>
+                                <option value="Cấp cứu">Khoa Cấp Cứu</option>
+                                <option value="Hồi sức tích cực">Khoa Hồi Sức Tích Cực (ICU)</option>
+                                <option value="Nội tổng hợp">Khoa Nội Tổng Hợp</option>
+                                <option value="Ngoại chấn thương">Khoa Ngoại Chấn Thương</option>
+                                <option value="Sản - Phụ khoa">Khoa Sản - Phụ Khoa</option>
+                                <option value="Nhi khoa">Khoa Nhi</option>
+                                <option value="Dược">Khoa Dược</option>
+                                <option value="Xét nghiệm">Khoa Xét Nghiệm</option>
+                                <option value="Hành chính">Phòng Hành Chính - Nhân Sự</option>
+                            </select>
+                        </div>
+                        <div class="form-group flex-1">
+                            <label for="newStaffRole">Chức danh / Vị trí</label>
+                            <input type="text" id="newStaffRole" placeholder="Bác sĩ điều trị / Điều dưỡng...">
+                        </div>
+                        <div class="form-group form-actions-align">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa-solid fa-user-plus"></i> Thêm nhân viên
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <hr class="divider">
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; flex-wrap: wrap; gap: 0.5rem;">
+                    <h4 style="margin-bottom: 0;">Danh sách nhân sự hiện hành (<span id="staffTotalCount">0</span> người)</h4>
+                    <button type="button" class="btn btn-outline" id="btnResetStaffDefaults" style="padding: 0.35rem 0.75rem; font-size: 0.78rem;">
+                        <i class="fa-solid fa-arrows-rotate"></i> Khôi phục 35 nhân sự mẫu
+                    </button>
+                </div>
+                <div class="modal-table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Mã NV</th>
+                                <th>Họ và tên</th>
+                                <th>Khoa / Phòng</th>
+                                <th>Chức vụ</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="staffListTableBody">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+	<script src="script.js"></script>
+</body>
+</html>
